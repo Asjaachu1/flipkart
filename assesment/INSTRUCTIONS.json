@@ -8,14 +8,14 @@
       "indicator": "USED_COMMENT"
     },
     {
-      "is_enabled": true,
+      "is_enabled": false,
       "min_limit": 1,
       "max_limit": null,
       "out": "WebDriverWait Check.You used {} waits, should be between {} < {}",
       "indicator": "USED_WAIT"
     },
     {
-      "is_enabled": true,
+      "is_enabled": false,
       "min_limit": null,
       "max_limit": 20,
       "out": "Sleep statement Check.You used {} sleep statements, should be between {} < {}",

@@ -19,4 +19,18 @@ public class Wrappers {
     /*
      * Write your selenium wrappers here
      */
+    WebDriver driver;
+
+    public Wrappers(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void launchApplication() {
+        driver.get("https://www.flipkart.com/");
+    }
+
+  public void enterText(By locator, String text) {
+    driver.findElement(locator).clear();
+    driver.findElement(locator).sendKeys(text, Keys.ENTER);
+}
 }
