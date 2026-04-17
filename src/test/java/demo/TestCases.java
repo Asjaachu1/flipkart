@@ -19,7 +19,16 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.JavascriptExecutor;
 import java.time.Duration;
 import java.beans.Transient;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collections;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.beans.Transient;
 
 
@@ -106,67 +115,94 @@ wrapper.enterText(
     String s = sd.getText();
     System.out.println(s);
     sd.click();
+     Thread.sleep(5000);
+
+    // Get discount elements
+       List<WebElement> discountList = driver.findElements(
+               By.xpath("//div[@class='ZFwe0M row']//div[@class='HQe8jr']/span")
+       );
+   
+       HashMap<String, String> iphoneMap = new HashMap<>();
+   
+       for (WebElement productRow : discountList) {
+   
+           String discountText = productRow.getText();   // e.g. "20% off"
+           int discountValue = Integer.parseInt(discountText.replaceAll("[^\\d]", ""));
+        int discount = 17;
+           if (discountValue > discount) {
+   
+               String title = productRow.findElement(
+                       By.xpath("//div[@class='ZFwe0M row']//div[@class='HQe8jr']/span/./../../../../..//div[@class='RG5Slk']")
+               ).getText();
+   
+               iphoneMap.put(discountText, title);
+           }
+       }
+   
+       // Print result
+       for (Map.Entry<String, String> entry : iphoneMap.entrySet()) {
+           System.out.println("Discount: " + entry.getKey() + " | Title: " + entry.getValue());
+       }
+   
+       System.out.println("Ending Test Case 02");
+   }
+  @Test
+public void testCase03() throws InterruptedException {
+
+    wrapper.launchApplication();
+
+    wrapper.enterText(
+        By.xpath("//input[@title='Search for Products, Brands and More']"),
+        "Coffee Mug"
+    );
+
     Thread.sleep(3000);
-    List <WebElement> per = driver.findElements(By.xpath("//div[@class='HQe8jr']"));
-    List <WebElement> title = driver.findElements(By.xpath("//div[@class='RG5Slk']"));
-    for (int i = 0; i < per.size() && i < title.size(); i++) {
 
-    String discountText = per.get(i).getText()
-                             .replaceAll("[^0-9]", "")
-                             .trim();
+    // Click 4★ & above
+    driver.findElement(By.xpath("//div[contains(text(),'4★ & above')]")).click();
 
-    int discount = Integer.parseInt(discountText);
+    Thread.sleep(3000);
 
-    if (discount > 17) {
-        System.out.println("Title: " + title.get(i).getText());
-        System.out.println("Discount: " + discount + "%");
-        System.out.println("-------------------");
-    }}
+    // Get review count elements
+    List<WebElement> reviewElements = driver.findElements(
+            By.xpath("//div[@class='a7saXW WDsrYC']//span[@class='PvbNMB']")
+    );
 
+    Set<Integer> reviewSet = new HashSet<>();
 
+    for (WebElement element : reviewElements) {
+        int count = Integer.parseInt(element.getText().replaceAll("[^\\d]", ""));
+        reviewSet.add(count);
     }
-    @Test 
-    public void testCase03()
-    {
-        wrapper.launchApplication();
-        wrapper.enterText(By.xpath("//form[@class='lilxh_ header-form-search']//input[@title='Search for Products, Brands and More']"),
-       "Coffee Mug"); 
-       List<WebElement> ratings = driver.findElements(
-    By.xpath("//div[@class='RGLWAk']//div[@class='MKiFS6']")
-);
 
-List<WebElement> productNames = driver.findElements(
-    By.xpath("//div[@class='RGLWAk']//a[@class='pIpigb']")
-);
+    // Convert & sort
+    List<Integer> reviewList = new ArrayList<>(reviewSet);
+    Collections.sort(reviewList, Collections.reverseOrder());
 
-List<WebElement> productLinks = driver.findElements(
-    By.xpath("//div[@class='RGLWAk']//a[@class='GnxRXv']")
-);
+    NumberFormat formatter = NumberFormat.getInstance(Locale.US);
 
-for (int i = 0; i < ratings.size() 
-        && i < productNames.size() 
-        && i < productLinks.size(); i++) {
+    for (int i = 0; i < 5; i++) {
 
-    String ratingText = ratings.get(i).getText().trim();
-    double rating = Double.parseDouble(ratingText);
+        String formattedCount = "(" + formatter.format(reviewList.get(i)) + ")";
 
-    if (rating > 4.0) {
-        String name = productNames.get(i).getText();
-        String url = productLinks.get(i).getAttribute("href");
+        // Title
+        String title = driver.findElement(By.xpath(
+                "//div[@class='RGLWAk']//span[contains(text()'" + formattedCount + "')]/./../..//a[@class='pIpigb']"
+        )).getText();
 
-        System.out.println("Product: " + name);
-        System.out.println("Rating: " + rating);
-        System.out.println("URL: " + url);
-        System.out.println("---------------------");
+        // Image URL
+        String imageUrl = driver.findElement(By.xpath(
+                "//div[@class='RGLWAk']//span[contains(text(),'" + formattedCount + "')]/./../..//a[@class='GnxRXv']"
+        )).getAttribute("src");
+
+        System.out.println("Review: " + formattedCount + " | Title: " + title);
+        System.out.println("Image URL: " + imageUrl);
     }
+
+    System.out.println("Ending Test Case 03");
 
 }
-
-
-
-
-
-    }
+    
 
     @AfterTest
     public void endTest()
